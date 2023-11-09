@@ -1,21 +1,22 @@
 # Get Started Guide
 
-## Setup Server
+> Setup Server
 
 ```npm install```
 
-## Setup Client
+> Setup Client
 ```cd client```
 ```npm install```
 
 
-## Start server using following code
+> Start server using following code
 ``` npm start ```
 
-## Start react app using following code
+> Start react app using following code
 ``` cd client ```
 ``` npm start ```
 
-#Interface Screenshot
+# Interface Screenshot
+
 
 
