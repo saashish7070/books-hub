@@ -16,12 +16,32 @@ git clone https://github.com/saashish7070/books-hub.git
 ```
 npm install
 ```
+- Add environment variable
+
+Create a new file name .env in root folder of this project
+
+Then copy following command
+
+```
+PORT = 9000
+MONGODB_URI = `your mongodb uri`
+```
 
 * Setup Client
 
 ```
 cd client 
 npm install
+```
+
+- Add environment variable
+
+Create a new file name .env in root folder of this react project
+
+Then copy following command
+
+```
+REACT_APP_PORT= http://localhost:9000/
 ```
 
 * Start server using following code
