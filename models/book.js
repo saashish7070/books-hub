@@ -10,6 +10,7 @@ const bookSchema = new Schema({
   newPrice: { type: Number },
   bookPicture: { type: String, required: true },
   status: { type: String, required: true },
+  rating:{type:Number, default: 0},
   sellerId: { type: Schema.Types.ObjectId, ref: 'User' },
   bookStore: { type: Schema.Types.ObjectId, ref: 'Store' },
   checkout: { type: Boolean, default: false },

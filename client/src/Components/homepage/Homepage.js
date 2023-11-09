@@ -16,7 +16,7 @@ const Homepage = () => {
   const [status, setStatus] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('');
   const categories = ["Novel","Engineering Books","MBBS Books"]
-  
+  const PORT = process.env.REACT_APP_PORT;
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
@@ -35,10 +35,11 @@ const Homepage = () => {
     setIsModalOpen(false);
   };
 
-  const fetchItems = async () => {
+  const fetchItems = async () => {    
     try {
-      const response = await axios.get('http://localhost:5000/books/');
+      const response = await axios.get(`${PORT}books/`);
       setContainer(response.data);
+      console.log(container)
       setLoading(false);
     } catch (error) {
       console.log(error.message);

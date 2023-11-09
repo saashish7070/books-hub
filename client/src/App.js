@@ -62,10 +62,10 @@ const homeRouter = createBrowserRouter([
     },{
       path: '/billing',
       element: <Billing />
-    },,{
+    },{
       path: '/coming-soon',
       element: <ComingSoon />
-    },
+    }
     // {
     //   path: '/shop',
     //   element: <BookStore />

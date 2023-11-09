@@ -14,15 +14,44 @@ exports.user_list = async (req, res) => {
 
 exports.user_detail = async (req, res) => {
   try {
-    const id = req.params.id;
-    const user = await User.findById(id);
-    if (!user) {
-      res.status(404).json({ message: "user not found" });
+    const { user } = req.body;
+    // Find the user by UID or any other identifier
+    const foundUser = await User.findOne({ uid: user.uid });
+
+    if (!foundUser) {
+      res.status(404).json({ message: "User not found" });
     } else {
-      res.json(user);
+      res.json(foundUser);
     }
   } catch (err) {
     console.log(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.user_detail_update = async (req, res) => {
+  try {
+    const { user } = req.body;
+    // Find the user by UID or any other identifier
+    const foundUser = await User.findOne({ uid: user.uid });
+
+    if (!foundUser) {
+      res.status(404).json({ message: "User not found" });
+    } else {
+      // Update user details based on the request body
+      // Modify this part based on your specific requirements
+      foundUser.name = user.name || foundUser.name;
+      foundUser.email = user.email || foundUser.email;
+      foundUser.userAddress = user.userAddress || foundUser.userAddress;
+      foundUser.contact = user.contact || foundUser.contact;
+
+      // Save the updated user
+      const updatedUser = await foundUser.save();
+
+      res.json(updatedUser);
+    }
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -169,62 +198,62 @@ exports.user_create_post = async (req, res) => {
   }
 };
 
-exports.refresh_user_book = async (req, res) => {
-  try {
-    const { bookId, user } = req.query;
-    // console.log(bookId)
-    const foundUser = await User.findOne({ uid: user });
-    if (!foundUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+// exports.refresh_user_book = async (req, res) => {
+//   try {
+//     const { bookId, user } = req.query;
+//     // console.log(bookId)
+//     const foundUser = await User.findOne({ uid: user });
+//     if (!foundUser) {
+//       return res.status(404).json({ message: 'User not found' });
+//     }
     
-    const foundBook = await Book.findById(bookId);
+//     const foundBook = await Book.findById(bookId);
     
-    if (!foundBook) {
-      return res.status(404).json({ message: 'Book not found' });
-    }
+//     if (!foundBook) {
+//       return res.status(404).json({ message: 'Book not found' });
+//     }
     
-    if (!foundBook.booked || foundBook.buyerId === null) {
-      const bookIndex = foundUser.bookId.indexOf(bookId);
-      if (bookIndex > -1) {
-        foundUser.bookId.splice(bookIndex, 1);
-        await foundUser.save();
-      }
-      return res.status(200).json({ message: 'Book removed from your cart' });
-    }
+//     if (!foundBook.booked || foundBook.buyerId === null) {
+//       const bookIndex = foundUser.bookId.indexOf(bookId);
+//       if (bookIndex > -1) {
+//         foundUser.bookId.splice(bookIndex, 1);
+//         await foundUser.save();
+//       }
+//       return res.status(200).json({ message: 'Book removed from your cart' });
+//     }
 
-    res.status(200).json({ message: 'Books refreshed successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-exports.user_check_out = async (req, res) => {
-  try {
-    const { billingInfo, user } = req.body;
-    const userData = await User.findOne({ uid: user.uid });
-    const userId = userData._id;
+//     res.status(200).json({ message: 'Books refreshed successfully' });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
+// exports.user_check_out = async (req, res) => {
+//   try {
+//     const { billingInfo, user } = req.body;
+//     const userData = await User.findOne({ uid: user.uid });
+//     const userId = userData._id;
 
-    const { province, city, area, address, landmark, isDefaultShipping, isDefaultBilling, mobileNumber } = billingInfo;
-    userData.billingAddress = { province, city, area, address, landmark, defaultShipping: isDefaultShipping, defaultBilling: isDefaultBilling };
-    userData.contact = mobileNumber;
+//     const { province, city, area, address, landmark, isDefaultShipping, isDefaultBilling, mobileNumber } = billingInfo;
+//     userData.billingAddress = { province, city, area, address, landmark, defaultShipping: isDefaultShipping, defaultBilling: isDefaultBilling };
+//     userData.contact = mobileNumber;
 
-    userData.checkOutBooks = userData.bookId;
-    userData.bookId = [];
+//     userData.checkOutBooks = userData.bookId;
+//     userData.bookId = [];
 
-    const updatedUserData = await userData.save();
+//     const updatedUserData = await userData.save();
 
-    const bookData = await Book.find({ buyerId: userId });
+//     const bookData = await Book.find({ buyerId: userId });
 
     
-    bookData.forEach(async (book) => {
-      book.checkout = true;
-      book.soldOut = true;
-      await book.save();
-    });
+//     bookData.forEach(async (book) => {
+//       book.checkout = true;
+//       book.soldOut = true;
+//       await book.save();
+//     });
 
-    res.status(200).json({ message: 'Billing information updated successfully', user: updatedUserData });
-  } catch (err) {
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
+//     res.status(200).json({ message: 'Billing information updated successfully', user: updatedUserData });
+//   } catch (err) {
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };

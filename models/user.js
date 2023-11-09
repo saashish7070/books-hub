@@ -6,15 +6,12 @@ const userSchema = new Schema({
   uid: { type: String, required: true },
   name: { type: String, required: true },
   email: { type: String, required: true },
-  // billingAddress:{
-  //   province: {type: String},
-  //   city: {type: String},
-  //   area: {type: String},
-  //   address: {type: String},
-  //   landmark: {type: String},
-  //   defaultShipping: {type: Boolean},
-  //   defaultBilling: {type: Boolean},
-  // },
+  userAddress:{
+    province: {type: String},
+    city: {type: String},
+    area: {type: String},
+    address: {type: String}
+  },
   contact: {type: Number,default: null},
   bookId: [{ type: Schema.Types.ObjectId, ref: 'Book' }],
   bookStore: {type: Schema.Types.ObjectId, ref:'Store'},

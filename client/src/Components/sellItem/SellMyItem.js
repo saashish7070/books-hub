@@ -40,6 +40,7 @@ const SellMyItem = ({ storeId }) => {
   const [placed, setPlaced] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const { user } = UserAuth();
+  const PORT = process.env.REACT_APP_PORT;
 
   const handleRangeChange = (event) => {
     setStatus(event.target.value);
@@ -48,7 +49,7 @@ const SellMyItem = ({ storeId }) => {
 
   useEffect(() => {
     if (user) {
-      axios.get('http://localhost:5000/users').then((response) => {
+      axios.get(`${PORT}users`).then((response) => {
         setSeller(response.data.filter((users) => user.email === users.email)[0]._id);
       });
     }
@@ -59,7 +60,7 @@ const SellMyItem = ({ storeId }) => {
     setLoading(true);
     try {
       const currentUser = user
-      const sellerId = await axios.get('http://localhost:5000/users')
+      const sellerId = await axios.get(`${PORT}users`)
         .then((response) => {
           const user = response.data.find((user) => user.uid === currentUser.uid);
            return user ? user._id : null;
@@ -89,7 +90,7 @@ const SellMyItem = ({ storeId }) => {
           bookPicture: pictureUrl, 
           newPrice: parseInt(newPrice),
         };
-        const response = await axios.post('http://localhost:5000/books/create', newBook);
+        const response = await axios.post(`${PORT}books/create`, newBook);
         setTitle('');
         setAuthor('');
         setDescription('');
@@ -103,18 +104,18 @@ const SellMyItem = ({ storeId }) => {
           book: response.data._id
         }
         
-        const userData = await axios.post('http://localhost:5000/users/itemList',userBook)
+        const userData = await axios.post(`${PORT}users/itemList`,userBook)
         setPlaced(userData.data.message)
 
         if (storeId) {
           axios
-            .get('http://localhost:5000/books')
+            .get(`${PORT}books`)
             .then((booksResponse) => {
               const books = booksResponse.data;
               const storeBooks = books.filter((book) => book.bookStore === storeId);
               const bookIds = storeBooks.map((book) => book._id);
               axios
-                .post(`http://localhost:5000/store/storeBooks/${storeId}`, { bookIds })
+                .post(`${PORT}store/storeBooks/${storeId}`, { bookIds })
                 .then(() => {
                   console.log(`Book is added`);
                 })

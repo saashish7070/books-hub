@@ -23,11 +23,12 @@ const Wishlist = () => {
   const { user } = UserAuth();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const PORT = process.env.REACT_APP_PORT;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/users/wishlist', {
+        const response = await axios.get(`${PORT}users/wishlist`, {
           headers: {
             'Content-Type': 'application/json',
             'User-Data': JSON.stringify(user)

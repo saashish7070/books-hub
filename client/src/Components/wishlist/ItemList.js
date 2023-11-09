@@ -21,6 +21,7 @@ import { NavLink } from 'react-router-dom';
 
 const ItemList = () => {
   const { user } = UserAuth();
+  const PORT = process.env.REACT_APP_PORT;
   const [data, setData] = useState([]);
   const [dataFilter,setDataFilter] = useState([])
   const [loading, setLoading] = useState(true);
@@ -34,7 +35,7 @@ const ItemList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/users/itemList', {
+        const response = await axios.get(`${PORT}users/itemList`, {
           headers: {
             'Content-Type': 'application/json',
             'User-Data': JSON.stringify(user)

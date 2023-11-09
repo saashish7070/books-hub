@@ -12,9 +12,10 @@ function BookList() {
   const [bookTitleCount, setBookTitleCount] = useState({});
   const[showUpdatePopup,setShowUpdatePopup] = useState(false);
   const [deleteBooks, setDeleteBooks] = useState(false); // new state variable
+  const PORT = process.env.REACT_APP_PORT;
 
   useEffect(() => {
-    axios.get('http://localhost:5000/books')
+    axios.get(`${PORT}books`)
       .then(response => {
         setBooks(response.data);
       })
@@ -38,7 +39,7 @@ function BookList() {
         tiTle = book.title;
       }
     })
-    axios.delete(`http://localhost:5000/books/${id}/delete`)
+    axios.delete(`${PORT}books/${id}/delete`)
       .then(response => {
         setDeleteBooks(!deleteBooks); // set the state variable to trigger a re-render
       })
@@ -65,7 +66,7 @@ function BookList() {
         book.title = (!updateBook.title)?book.title:updateBook.title;
         book.author = updateBook.author;
         book.price = updateBook.price;
-        axios.post(`http://localhost:5000/books/${selectedBook._id}/update`, {
+        axios.post(`${PORT}books/${selectedBook._id}/update`, {
         title: book.title,
         author: book.author,
         price: book.price,}).then((response)=>{

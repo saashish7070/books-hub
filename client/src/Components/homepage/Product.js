@@ -23,6 +23,7 @@ const Product = ({ item }) => {
   const [showDetailPopup, setShowDetailPopup] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [dataResponse, setDataResponse] = useState('');
+  const PORT = process.env.REACT_APP_PORT;
 
   const Content = styled(Typography)({
     fontFamily: 'Arial',
@@ -36,7 +37,7 @@ const Product = ({ item }) => {
       // }
 
       axios
-      .post('http://localhost:5000/users/addToWishlist', { bookId: item._id, user })
+      .post(`${PORT}users/addToWishlist`, { bookId: item._id, user })
       .then((response) => {
         setDataResponse(response.data.message);
         console.log(response);
