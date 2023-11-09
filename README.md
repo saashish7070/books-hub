@@ -2,7 +2,9 @@
 
 * Setup Server
 
-```npm install```
+```
+npm install
+```
 
 * Setup Client
 
@@ -13,7 +15,9 @@ npm install
 
 * Start server using following code
 
-``` npm start ```
+``` 
+npm start 
+```
 
 * Start react app using following code
 
