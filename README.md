@@ -1,3 +1,12 @@
+# Install in your Computer
+
+Open the folder of your choice then open terminal there
+Then copy following code
+
+```
+git clone https://github.com/saashish7070/books-hub.git
+```
+
 # Get Started Guide
 
 * Setup Server
