@@ -6,9 +6,10 @@
 
 * Setup Client
 
-```cd client
-    npm install```
-
+```
+cd client 
+npm install
+```
 
 * Start server using following code
 
