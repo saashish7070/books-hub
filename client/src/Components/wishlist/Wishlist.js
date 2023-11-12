@@ -46,6 +46,7 @@ const Wishlist = () => {
 
   const WishlistContainer = styled(Box)({
     display: 'flex',
+    paddingTop: '60px',
     flexDirection: 'column',
     alignItems: 'center',
     padding: '${(props) => props.theme.spacing(3)}px',
@@ -154,7 +155,7 @@ const Wishlist = () => {
               Your wishlist items will be saved for future reference.
             </Typography>
           </Box>
-          <Box style={{ width: '700%', display: 'flex', marginLeft: 100, justifyContent: 'flex-start' }}>
+          {/* <Box style={{ width: '700%', display: 'flex', marginLeft: 100, justifyContent: 'flex-start' }}>
             <Typography style={{ fontSize: '13px' }}>
               If you have a promotion code, please enter it here:
             </Typography>
@@ -175,7 +176,7 @@ const Wishlist = () => {
               Apply Discount
             </ButtonStyle>
             
-          </Stack>
+          </Stack> */}
           <Stack direction="row" sx={{ justifyContent: 'flex-end', marginTop: 2, marginBottom: 3 }}>
             <NavLink to='/' className='link'>
               <ButtonStyle
@@ -186,7 +187,7 @@ const Wishlist = () => {
                 color="primary"
                 variant="contained"
               >
-                Continue Shopping
+                Back to Search
               </ButtonStyle>
             </NavLink>
           </Stack>

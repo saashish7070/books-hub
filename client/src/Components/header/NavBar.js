@@ -49,7 +49,7 @@ const Navbar = () => {
 
   const NavTool = styled(Toolbar)({
     justifyContent: 'space-between',
-    '@media (max-width: 768px)': {
+    '@media (max-width: 900px)': {
       flexDirection: 'column',
       alignItems: 'center',
     },
@@ -58,7 +58,8 @@ const Navbar = () => {
   
   const MenuData = styled(Box)({
     justifyContent:'space-between',
-    '@media (max-width: 768px)': {
+    '@media (max-width: 900px)': {
+      display:'none',
       marginTop: '20px',
     },
   });
@@ -79,7 +80,7 @@ const Navbar = () => {
     '&:hover': {
       color: '#ffc107',
     },
-    '@media (max-width: 768px)': {
+    '@media (max-width: 900px)': {
       margin: '10px 0',
     },
   });
@@ -98,7 +99,7 @@ const Navbar = () => {
           </Typo>
         </NavLink>
         <MenuData>
-          <Box sx={{ display: { xs: 'none', sm: 'flex' }, justifyContent: 'space-between' }}>
+          <Box sx={{ display: { sm: 'none', md: 'flex' }, justifyContent: 'space-between' }}>
             <NavElement direction='row'>
               <NavLink to='/' className='link'>
                 <Typo>Home</Typo>

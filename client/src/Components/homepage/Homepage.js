@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControl, FormControlLabel, Grid, InputAdornment, MenuItem, Radio, RadioGroup, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControl, FormControlLabel, Grid, InputAdornment, MenuItem, Radio, RadioGroup, Stack, TextField, Typography, useMediaQuery } from '@mui/material';
 import Product from './Product';
 import { CircularProgress, Pagination } from '@mui/material';
 import SearchBar from './SearchBar';
@@ -23,6 +23,10 @@ const Homepage = () => {
 
 
   let categoriesItem = ["Novel","Engineering Books","MBBS Books","LokSewa","BBA","BBS","CA","Other"]
+
+
+  const isBigScreen = useMediaQuery('(min-width: 660px)');
+  const displayItemCount = isBigScreen ? 6 : 3; // Adjust the number of items based on the screen size
 
   
   const handleSearch = (value) => {
@@ -97,14 +101,15 @@ const Homepage = () => {
 
   return (
     <div style={{ backgroundColor: '#f3f3f3', paddingTop: '45px'}}>
-      <Stack direction="row" sx={{ justifyContent: 'space-between', marginTop: 2, marginBottom: 3, marginRight: 3, marginLeft: 3}}>
-        <Typography variant="h5" sx={{ color: 'black',fontWeight: 900 }}>Popular Books</Typography>
-        <SearchBar onSearch={handleSearch} />
-        <Button variant="contained" sx={{height: '36px'}} onClick={handleModalOpen}>
-          Filter <FilterAltOutlinedIcon />
-        </Button>
-        
+      <Box>
+      <Stack direction="row" sx={{ justifyContent: 'space-between', display: isBigScreen ? 'flex' : 'block' ,marginTop: 2, marginBottom: 3, marginRight: 3, marginLeft: 3}}>
+          <Typography variant="h5" sx={{ color: 'black',fontWeight: 600 }}>Popular Books</Typography>
+          <SearchBar onSearch={handleSearch} />
+          <Button variant="contained" sx={{height: '36px'}} onClick={handleModalOpen}>
+            Filter <FilterAltOutlinedIcon />
+          </Button>
          </Stack>
+      </Box>
       <Dialog open={isModalOpen} onClose={handleModalClose}>
         <DialogTitle>Filter Options</DialogTitle>
         <DialogContent>
@@ -159,8 +164,8 @@ const Homepage = () => {
       </Dialog>
 
       
-      <Stack direction="row" spacing={2} sx={{ width: "80%",margin: "auto",mb:5 , justifyContent: 'center' }}>
-      {categoriesItem.slice(0, 6).map((item) => (
+      <Stack direction="row" spacing={2} sx={{ width: '80%', margin: 'auto', mb: 5, justifyContent: 'center' }}>
+      {categoriesItem.slice(0, displayItemCount).map((item) => (
         <Button
           key={item}
           onClick={() => handleCategoryClick(item)}
@@ -185,17 +190,19 @@ const Homepage = () => {
           {item}
         </Button>
       ))}
+    </Stack>
 
-        </Stack>
 
-
-        <Box sx={{ maxWidth: '90%', margin: 'auto' }}>
-          <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 1, sm: 2, md: 3, lg: 4 }}>
+        <Box sx={{ maxWidth: '90%', margin: 'auto', textAlign: 'center' }}>
+          <Grid container justifyContent="center" spacing={{ xs: 2, md: 3 }} columns={{ xs: 1, sm: 2, md: 3, lg: 4 }}>
             {currentItems.map((item) => (
-              <Product item={item} key={item._id} />
+              <Grid item key={item._id}>
+                <Product item={item} />
+              </Grid>
             ))}
           </Grid>
         </Box>
+
 
 
       <Divider />

@@ -11,7 +11,7 @@ export const ComingSoon = () => {
 
   return (
     <animated.div style={props}>
-      <Container maxWidth="md" sx={{ textAlign: 'center', mt: 8 ,p: 12}}>
+      <Container maxWidth="md" sx={{ textAlign: 'center', mt: 8 ,p: 20}}>
         <Typography variant="h2" color="primary" gutterBottom>
           Coming Soon!
         </Typography>
