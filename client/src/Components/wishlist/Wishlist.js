@@ -28,13 +28,10 @@ const Wishlist = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${PORT}users/wishlist`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'User-Data': JSON.stringify(user)
-          }
-        });
-
+        let userId = user.uid
+        // console.log(userId)
+        const response = await axios.get(`${PORT}users/wishlist/${userId}`);
+        // console.log(response)
         setData(response.data);
         setLoading(false);
 

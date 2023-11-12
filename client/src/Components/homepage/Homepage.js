@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControl, FormControlLabel, Grid, MenuItem, Radio, RadioGroup, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControl, FormControlLabel, Grid, InputAdornment, MenuItem, Radio, RadioGroup, Stack, TextField, Typography } from '@mui/material';
 import Product from './Product';
-
 import { CircularProgress, Pagination } from '@mui/material';
+import SearchBar from './SearchBar';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 
 const Homepage = () => {
   const [container, setContainer] = useState([]);
@@ -14,10 +15,20 @@ const Homepage = () => {
   const [sortOption, setSortOption] = useState('asc');
   const [searchQuery, setSearchQuery] = useState('');
   const [status, setStatus] = useState(null);
+  const [categories,setCategories] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('');
-  const categories = ["Novel","Engineering Books","MBBS Books"]
+  const [searchTerm, setSearchTerm] = useState('');
   const PORT = process.env.REACT_APP_PORT;
 
+
+
+  let categoriesItem = ["Novel","Engineering Books","MBBS Books","LokSewa","BBA","BBS","CA","Other"]
+
+  
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    // Perform your search logic here using the value
+  };
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
     // Perform actions based on the selected category
@@ -85,24 +96,34 @@ const Homepage = () => {
   
 
   return (
-    <div style={{ backgroundColor: '#f3f3f3', paddingTop: '15px'}}>
+    <div style={{ backgroundColor: '#f3f3f3', paddingTop: '45px'}}>
       <Stack direction="row" sx={{ justifyContent: 'space-between', marginTop: 2, marginBottom: 3, marginRight: 3, marginLeft: 3}}>
-        <Typography variant="h6" sx={{ color: 'black' }}>Popular Books</Typography>
-        <Button variant="contained" onClick={handleModalOpen}>
-          Filter
+        <Typography variant="h5" sx={{ color: 'black',fontWeight: 900 }}>Popular Books</Typography>
+        <SearchBar onSearch={handleSearch} />
+        <Button variant="contained" sx={{height: '36px'}} onClick={handleModalOpen}>
+          Filter <FilterAltOutlinedIcon />
         </Button>
+        
          </Stack>
       <Dialog open={isModalOpen} onClose={handleModalClose}>
         <DialogTitle>Filter Options</DialogTitle>
         <DialogContent>
           <Stack direction="column">
             <TextField
-              label="Search"
-              value={searchQuery}
-              onChange={handleSearchQueryChange}
-              margin="normal"
-              variant="outlined"
-            />
+                required
+                select
+                label="Select Category"
+                value={categories}
+                onChange={(event) => setCategories(event.target.value)}
+                sx={{ marginTop: '20px', marginBottom: '20px', width: '100%', maxWidth: '400px' }}
+              >
+                {categoriesItem.map((categoryItem) => (
+                  <MenuItem key={categoryItem} value={categoryItem}>
+                    {categoryItem}
+                  </MenuItem>
+                ))}
+              </TextField>
+
             <FormControl component="fieldset" sx={{ marginTop: 2 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                 Sort by Price
@@ -139,31 +160,32 @@ const Homepage = () => {
 
       
       <Stack direction="row" spacing={2} sx={{ width: "80%",margin: "auto",mb:5 , justifyContent: 'center' }}>
-          {categories.map((item) => (
-            <Button
-              key={item}
-              onClick={() => handleCategoryClick(item)}
-              sx={{
-                borderRadius: '16px',
-                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-                transition: 'transform 0.2s ease-out',
-                transform: 'translateY(0)',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-                },
-                '&:active': {
-                  transform: 'translateY(0)',
-                  boxShadow: 'none',
-                },
-                flexGrow: 1,
-                '&:first-child': { marginLeft: 0 },
-                '&:last-child': { marginRight: 0 },
-              }}
-            >
-              {item}
-            </Button>
-          ))}
+      {categoriesItem.slice(0, 6).map((item) => (
+        <Button
+          key={item}
+          onClick={() => handleCategoryClick(item)}
+          sx={{
+            borderRadius: '16px',
+            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+            transition: 'transform 0.2s ease-out',
+            transform: 'translateY(0)',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+            },
+            '&:active': {
+              transform: 'translateY(0)',
+              boxShadow: 'none',
+            },
+            flexGrow: 1,
+            '&:first-child': { marginLeft: 0 },
+            '&:last-child': { marginRight: 0 },
+          }}
+        >
+          {item}
+        </Button>
+      ))}
+
         </Stack>
 
 

@@ -73,37 +73,71 @@ exports.user_detail_update = async (req, res) => {
   }
 };
 
+// exports.wishlist_display = async (req, res) => {
+  // try {
+  //   const {userId} = req.body;
+  //   const foundUser = await User.findOne({ uid: userId});
+  //   console.log('Not Found')
+  //   if (!foundUser) {
+  //     return res.status(404).json({ message: 'User not found' });
+  //   }
+    
+  //   const booksId = foundUser.bookId.map(item => item.toString());
+  //   if (booksId.length === 0) {
+  //     return res.status(404).json({ message: 'No books found for the user' });
+  //   }
+    
+  //   const books = [];
+    
+  //   for (const bookId of booksId) {
+  //     const book = await Book.findById(bookId);
+  //     if (book) {
+  //       books.push(book);
+  //     }
+  //   }
+    
+  //   // console.log(books)
+  //   res.json(books);
+  // } catch (err) {
+  //   console.error('Error fetching user cart data:', err);
+  //   return res.status(500).json({ message: 'Internal server error' });
+  // }
+//   console.log('Hello')
+// };
+
 exports.wishlist_display = async (req, res) => {
   try {
-    const user = JSON.parse(req.headers['user-data']);
-    const foundUser = await User.findOne({ uid: user.uid });
     
+    const id = req.params.id;
+    // console.log(userId)
+
+    // Find the user by UID or any other identifier
+    const foundUser = await User.findOne({ uid: id });
+
     if (!foundUser) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
-    const booksId = foundUser.bookId.map(item => item.toString());
-    
-    if (booksId.length === 0) {
-      return res.status(404).json({ message: 'No books found for the user' });
+
+    // Check if the user has any books in the wishlist
+    if (!foundUser.bookId || foundUser.bookId.length === 0) {
+      return res.status(200).json({ message: 'No books found in the wishlist' });
     }
-    
-    const books = [];
-    
-    for (const bookId of booksId) {
-      const book = await Book.findById(bookId);
-      if (book) {
-        books.push(book);
-      }
-    }
-    
-    // console.log(books)
-    res.json(books);
-  } catch (err) {
-    console.error('Error fetching user cart data:', err);
-    return res.status(500).json({ message: 'Internal server error' });
+
+    // If there are books in the wishlist, fetch the details
+    const wishlistItems = await Promise.all(
+      foundUser.bookId.map(async (bookId) => {
+        // Assuming each bookId is a valid ObjectId
+        const book = await Book.findById(bookId);
+        return book; // Modify this based on your Book model structure
+      })
+    );
+
+    res.status(200).json(wishlistItems);
+  } catch (error) {
+    console.error('Error fetching wishlist data:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-};
+}
 
 exports.wishlist = async (req, res) => {
   try {
