@@ -30,7 +30,7 @@ const FormContainer = styled('form')({
   justifyContent: 'space-between' 
 });
 
-const Product = ({ item }) => {
+const Product = ({ item,show }) => {
   const { user } = UserAuth();
   // const [newPrice, setNewPrice] = useState('');
   const [comment,setComment] = useState('')
@@ -149,7 +149,7 @@ const Product = ({ item }) => {
             </Alert>
           </Snackbar>
           <Card sx={{marginRight: '10px'}}>
-          <Grid item sx={{ width: '290px',marginTop: '15px'}} onClick={() => handleClick(item._id)}>
+          <Grid item sx={{ width: '290px',marginTop: '15px'}} >
             <Box>
               <img src={item.bookPicture} height="250" width="60%" alt="Image is here" />
             </Box>
@@ -260,9 +260,14 @@ const Product = ({ item }) => {
                 {/* </Stack>
                 
               )} */}
+              {
+                show ? 
+                (
                 <Button variant="outlined" sx={{ fontSize: '10px' }} onClick={handleOnClick}>
                   Add To Wishlist
                 </Button>
+                ):<></>
+              }
                 <Button variant="outlined" sx={{ fontSize: '10px' }} onClick={() => handleClick(item._id)}>
                   See Detail
                 </Button>
@@ -294,7 +299,8 @@ const Product = ({ item }) => {
                   Book Detail
                 </h4>
                 <Box sx={{ display: 'flex' }}>
-                  <img src={item.bookPicture} height="300" width="40%" alt="Image is here" />
+                  <img src={item.bookPicture} height="80%" width="40%" alt="Image is here" />
+                  
                   <Box sx={{ display: 'block', padding: '20px', width: '60%'}}>
                    <h2 id="modal-title" sx={{ fontWeight: 'bold', mb: 2 ,color : '#C7DFF7',mt: 0, padding: 'none'}}>
                      {item.title}
@@ -342,7 +348,7 @@ const Product = ({ item }) => {
                     <Typography>Name: {seller.name}</Typography>
                     <Typography>Email: {seller.email}</Typography>
                     <Typography>Contact no: {seller.contact ? <>{seller.contact}</>:<>Not Mentioned</>}</Typography>
-                    <Typography>Address: {seller.userAddress ?  <>{seller.userAddress.city},{seller.userAddress.province}</>: <>Not Mentioned</>}</Typography>
+                    <Typography>Location: {seller.userAddress ?  <>{seller.userAddress.city},{seller.userAddress.province}</>: <>Not Mentioned</>}</Typography>
                     
                       {facebookId && <Typography style={{ display: 'flex'}}>Connect with Facebook<a href={`${facebookId}`} target="_blank" rel="noopener noreferrer" style={{alignItems: 'center'}}><FacebookOutlinedIcon color='primary' sx={{ ml: 2 }} /></a></Typography>}
                  
@@ -352,9 +358,14 @@ const Product = ({ item }) => {
                
 
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  {
+                  show ? 
+                  (
                   <Button variant="outlined" sx={{ fontSize: '10px' }} onClick={handleOnClick}>
                     Add To Wishlist
                   </Button>
+                  ):<></>
+                }
                   <Button variant="outlined" onClick={() => setShowDetailPopup(false)} sx={{ mr: 2 }}>
                     Cancel
                   </Button>

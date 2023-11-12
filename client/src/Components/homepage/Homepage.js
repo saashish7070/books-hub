@@ -20,7 +20,7 @@ const Homepage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const PORT = process.env.REACT_APP_PORT;
 
-
+  let show = true
 
   let categoriesItem = ["Novel","Engineering Books","MBBS Books","LokSewa","BBA","BBS","CA","Other"]
 
@@ -197,7 +197,7 @@ const Homepage = () => {
           <Grid container justifyContent="center" spacing={{ xs: 2, md: 3 }} columns={{ xs: 1, sm: 2, md: 3, lg: 4 }}>
             {currentItems.map((item) => (
               <Grid item key={item._id}>
-                <Product item={item} />
+                <Product item={item} show={show}/>
               </Grid>
             ))}
           </Grid>

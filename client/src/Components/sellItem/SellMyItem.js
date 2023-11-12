@@ -7,6 +7,7 @@ import { styled } from '@mui/system';
 const FormContainer = styled('form')({
   width: '100%',
   margin: '40px',
+  paddingTop: '70px',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',

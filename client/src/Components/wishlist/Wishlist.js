@@ -12,37 +12,58 @@ import {
   TextField,
   Typography,
   CircularProgress,
+  Grid,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/system';
 import { UserAuth } from '../../firebase/auth';
 import axios from 'axios';
 import { NavLink } from 'react-router-dom';
+import Product from '../homepage/Product';
 
 const Wishlist = () => {
   const { user } = UserAuth();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [detail, setDetail] = useState(null); // Use null to indicate no specific item selected
+
   const PORT = process.env.REACT_APP_PORT;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        let userId = user.uid
-        // console.log(userId)
-        const response = await axios.get(`${PORT}users/wishlist/${userId}`);
-        // console.log(response)
-        setData(response.data);
-        setLoading(false);
+  let show = false;
 
-      } catch (error) {
-        console.log('Error fetching wishlist data:', error);
-        setLoading(false);
-      }
-    };
-
+  const handleRemoveWishlist = async(id)=>{
+    
+    // console.log(user.uid)
+    const userIdResponse = await axios.get(`${PORT}users/profile/${user.uid}`)
+    let userId = userIdResponse.data._id
+    console.log(userId)
+    const response = await axios.delete(`${PORT}users/wishlist/${userId}`, { data: { bookId: id } })
     fetchData();
-  }, [user]);
+    // window.location.reload();
+  }
+
+  const fetchData = async () => {
+    try {
+      let userId = user.uid
+      // console.log(userId)
+      const response = await axios.get(`${PORT}users/wishlist/${userId}`);
+      // console.log(response.data)
+      setData(response.data);
+      setLoading(false);
+
+    } catch (error) {
+      console.log('Error fetching wishlist data:', error);
+      setLoading(false);
+    }
+  };
+
+  const viewItemDetails = (id) => {
+    setDetail(id);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const WishlistContainer = styled(Box)({
     display: 'flex',
@@ -134,21 +155,28 @@ const Wishlist = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((item) => {
-                return (
-                  <CellStyle key={item._id}>
-                    <TableCell>
-                      <b>{item.title}</b>
-                    </TableCell>
-                    <TableCell>{item.author}</TableCell>
-                    <TableCell>Rs.{item.price}</TableCell>
-                    <TableCell style={{ display: 'flex', justifyContent: 'center' }}>
-                      <DeleteIcon color='error'/>
-                    </TableCell>
-                  </CellStyle>
-                );
-              })}
-            </TableBody>
+      {data && data.length > 0 ? (
+        data.map((item) => (
+          <CellStyle key={item._id} onClick={() => viewItemDetails(item._id)}>
+              <TableCell>
+                <b>{item.title}</b>
+              </TableCell>
+              <TableCell>{item.author}</TableCell>
+              <TableCell>Rs.{item.newPrice}</TableCell>
+              <TableCell style={{ display: 'flex', justifyContent: 'center' }}>
+                <DeleteIcon color="error" onClick={() => handleRemoveWishlist(item._id)} />
+              </TableCell>
+            </CellStyle>
+        ))
+      ) : (
+        <TableRow>
+          <TableCell colSpan={4} align="center">
+            Your wishlist is empty.
+          </TableCell>
+        </TableRow>
+      )}
+    </TableBody>
+
           </Table>
           <Box style={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
             <Typography variant="body1" color="error">
@@ -177,6 +205,15 @@ const Wishlist = () => {
             </ButtonStyle>
             
           </Stack> */}
+          
+          {detail !== null && (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <Grid item key={detail}>
+                <Product item={data.find((item) => item._id === detail)} show={show} />
+              </Grid>
+            </div>
+          )}
+
           <Stack direction="row" sx={{ justifyContent: 'flex-end', marginTop: 2, marginBottom: 3 }}>
             <NavLink to='/' className='link'>
               <ButtonStyle
@@ -193,6 +230,7 @@ const Wishlist = () => {
           </Stack>
         </Paper>
       </Box>
+      
     </WishlistContainer>
   );
 };
