@@ -45,9 +45,10 @@ const Wishlist = () => {
   const fetchData = async () => {
     try {
       let userId = user.uid
-      // console.log(userId)
+      console.log(userId)
+
       const response = await axios.get(`${PORT}users/wishlist/${userId}`);
-      // console.log(response.data)
+      console.log(response)
       setData(response.data);
       setLoading(false);
 
@@ -129,45 +130,78 @@ const Wishlist = () => {
       </WishlistContainer>
     );
   }
-
   return (
     <WishlistContainer>
-       <Box>
-          <Typography variant="h4" gutterBottom>Item Wishlist</Typography>
-       </Box>
-      <Box style={{ display: 'block' }}>
-        <Paper style={{ margin: '40px 150px', padding: '5px' }}>
-          <Table style={{ width: '100%', justifyContent: 'center' }}>
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ width: '550px' }}>
-                  <b>Book Name</b>
-                </TableCell>
-                <TableCell>
-                  <b>Author</b>
-                </TableCell>
-                <TableCell>
-                  <b>Price</b>
-                </TableCell>
-                <TableCell style={{ width: '50px' }}>
-                  <b>Remove</b>
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
       {data && data.length > 0 ? (
-        data.map((item) => (
-          <CellStyle key={item._id} onClick={() => viewItemDetails(item._id)}>
-              <TableCell>
-                <b>{item.title}</b>
-              </TableCell>
-              <TableCell>{item.author}</TableCell>
-              <TableCell>Rs.{item.newPrice}</TableCell>
-              <TableCell style={{ display: 'flex', justifyContent: 'center' }}>
-                <DeleteIcon color="error" onClick={() => handleRemoveWishlist(item._id)} />
-              </TableCell>
-            </CellStyle>
-        ))
+        <>
+          <Box>
+            <Typography variant="h4" gutterBottom>Item Wishlist</Typography>
+          </Box>
+          <Box style={{ display: 'block' }}>
+            <Paper style={{ margin: '40px 150px', padding: '5px' }}>
+              <Table style={{ width: '100%', justifyContent: 'center' }}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell style={{ width: '550px' }}>
+                      <b>Book Name</b>
+                    </TableCell>
+                    <TableCell>
+                      <b>Author</b>
+                    </TableCell>
+                    <TableCell>
+                      <b>Price</b>
+                    </TableCell>
+                    <TableCell style={{ width: '50px' }}>
+                      <b>Remove</b>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data.map((item) => (
+                    <CellStyle key={item._id} onClick={() => viewItemDetails(item._id)}>
+                      <TableCell>
+                        <b>{item && item.title}</b>
+                      </TableCell>
+                      <TableCell>{item && item.author}</TableCell>
+                      <TableCell>Rs.{item && item.newPrice}</TableCell>
+                      <TableCell style={{ display: 'flex', justifyContent: 'center' }}>
+                        <DeleteIcon color="error" onClick={() => handleRemoveWishlist(item._id)} />
+                      </TableCell>
+                    </CellStyle>
+                  ))}
+                </TableBody>
+              </Table>
+              <Box style={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
+                <Typography variant="body1" color="error">
+                  Your wishlist items will be saved for future reference.
+                </Typography>
+              </Box>
+
+              {detail !== null && (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <Grid item key={detail}>
+                    <Product item={data.find((item) => item._id === detail)} show={show} />
+                  </Grid>
+                </div>
+              )}
+
+              <Stack direction="row" sx={{ justifyContent: 'flex-end', marginTop: 2, marginBottom: 3 }}>
+                <NavLink to='/' className='link'>
+                  <ButtonStyle
+                    sx={{
+                      minWidth: '150px',
+                      marginRight: '25px',
+                    }}
+                    color="primary"
+                    variant="contained"
+                  >
+                    Back to Search
+                  </ButtonStyle>
+                </NavLink>
+              </Stack>
+            </Paper>
+          </Box>
+        </>
       ) : (
         <TableRow>
           <TableCell colSpan={4} align="center">
@@ -175,62 +209,6 @@ const Wishlist = () => {
           </TableCell>
         </TableRow>
       )}
-    </TableBody>
-
-          </Table>
-          <Box style={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
-            <Typography variant="body1" color="error">
-              Your wishlist items will be saved for future reference.
-            </Typography>
-          </Box>
-          {/* <Box style={{ width: '700%', display: 'flex', marginLeft: 100, justifyContent: 'flex-start' }}>
-            <Typography style={{ fontSize: '13px' }}>
-              If you have a promotion code, please enter it here:
-            </Typography>
-          </Box>
-          <Stack direction="row" sx={{ marginTop: '10px', justifyContent: 'space-evenly' }}>
-            <TextField variant="outlined" label="Promo Code" placeholder="Please enter promo code here" sx={{ width: '400px' }} />
-            <ButtonStyle
-              sx={{
-                minWidth: '150px',
-                backgroundColor: '#2196f3',
-                color: '#ffffff',
-                '&:hover': {
-                  backgroundColor: '#0d6fe3',
-                },
-              }}
-              variant="contained"
-            >
-              Apply Discount
-            </ButtonStyle>
-            
-          </Stack> */}
-          
-          {detail !== null && (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <Grid item key={detail}>
-                <Product item={data.find((item) => item._id === detail)} show={show} />
-              </Grid>
-            </div>
-          )}
-
-          <Stack direction="row" sx={{ justifyContent: 'flex-end', marginTop: 2, marginBottom: 3 }}>
-            <NavLink to='/' className='link'>
-              <ButtonStyle
-                sx={{
-                  minWidth: '150px',
-                  marginRight: '25px',
-                }}
-                color="primary"
-                variant="contained"
-              >
-                Back to Search
-              </ButtonStyle>
-            </NavLink>
-          </Stack>
-        </Paper>
-      </Box>
-      
     </WishlistContainer>
   );
 };
