@@ -13,8 +13,10 @@ const userSchema = new Schema({
     address: {type: String}
   },
   contact: {type: Number,default: null},
+  facebookId : {type: String},
+  rating: {type: Number,default: 0},
   bookId: [{ type: Schema.Types.ObjectId, ref: 'Book' }],
-  bookStore: {type: Schema.Types.ObjectId, ref:'Store'},
+  // bookStore: {type: Schema.Types.ObjectId, ref:'Store'},
   bookList: [{type:Schema.Types.ObjectId, ref: 'Book'}],
   soldBooks: [{type: Schema.Types.ObjectId, ref:'Book'}],
 });

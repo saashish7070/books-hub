@@ -10,15 +10,17 @@ const bookSchema = new Schema({
   newPrice: { type: Number },
   bookPicture: { type: String, required: true },
   status: { type: String, required: true },
-  rating:{type:Number, default: 0},
   sellerId: { type: Schema.Types.ObjectId, ref: 'User' },
-  bookStore: { type: Schema.Types.ObjectId, ref: 'Store' },
-  checkout: { type: Boolean, default: false },
-  soldOut: { type: Boolean, default: false },
-  stock : {type: Boolean, default: true},
+  comment: [{type: Schema.Types.ObjectId, ref: 'Comment'}],
   timeStamp: { type: Date },
+  // bookStore: { type: Schema.Types.ObjectId, ref: 'Store' },
+  // checkout: { type: Boolean, default: false },
+  // soldOut: { type: Boolean, default: false },
+  // stock : {type: Boolean, default: true},
 });
 
+
+//This was build for timing booking
 // bookSchema.pre('save', async function (next) {
 //   if (this.isModified('booked') && this.booked) {
 //     this.timeStamp = new Date();

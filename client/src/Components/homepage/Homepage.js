@@ -167,11 +167,14 @@ const Homepage = () => {
         </Stack>
 
 
-        <Box sx={{ display: 'flex', justifyContent: 'center',padding: 6 }}>
+        <Box sx={{ maxWidth: '90%', margin: 'auto' }}>
           <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 1, sm: 2, md: 3, lg: 4 }}>
-            {currentItems.map((item) => <Product item={item} key={item._id} />)}
+            {currentItems.map((item) => (
+              <Product item={item} key={item._id} />
+            ))}
           </Grid>
         </Box>
+
 
       <Divider />
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>

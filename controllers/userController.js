@@ -12,11 +12,28 @@ exports.user_list = async (req, res) => {
   }
 };
 
-exports.user_detail = async (req, res) => {
+
+exports.user_profile = async (req, res) => {
   try {
     const { user } = req.body;
     // Find the user by UID or any other identifier
     const foundUser = await User.findOne({ uid: user.uid });
+
+    if (!foundUser) {
+      res.status(404).json({ message: "User not found" });
+    } else {
+      res.json(foundUser);
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.user_detail = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const foundUser = await User.findById(id);
 
     if (!foundUser) {
       res.status(404).json({ message: "User not found" });

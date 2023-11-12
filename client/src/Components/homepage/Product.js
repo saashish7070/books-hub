@@ -12,24 +12,54 @@ import {
   Typography,
   Alert,
   Card,
+  Paper,
+  CircularProgress,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
 import { UserAuth } from '../../firebase/auth';
 import axios from 'axios';
 
+
+
+const FormContainer = styled('form')({
+  marginRight: '10px',
+  width: '50%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between' 
+});
+
 const Product = ({ item }) => {
   const { user } = UserAuth();
-  const [newPrice, setNewPrice] = useState('');
+  // const [newPrice, setNewPrice] = useState('');
+  const [comment,setComment] = useState('')
   const [showDetailPopup, setShowDetailPopup] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [dataResponse, setDataResponse] = useState('');
+  const [seller,setSeller] = useState('')
+  const [facebookId,setFacebookId] = useState('')
   const PORT = process.env.REACT_APP_PORT;
+  const [showMore, setShowMore] = useState(false);
+  const [truncatedDescription, setTruncatedDescription] = useState('');
 
+
+  const toggleShowMore = () => {
+    setShowMore(!showMore);
+  };
+
+
+  const userId = user?.uid;
+  
   const Content = styled(Typography)({
     fontFamily: 'Arial',
     fontSize: '14px',
     fontWeight: 520,
   });
+
+
+
 
   const handleOnClick = () => {
     // if (item.booked) {
@@ -48,14 +78,66 @@ const Product = ({ item }) => {
         console.error('Failed to update user cart:', error);
       });
   };
+  
+  
+  function modifyFacebookURL(url) {
+    // Check if the URL contains "www.facebook.com/"
+    if (url.includes('www.facebook.com/')) {
+      // Insert "/messages/t/" after "www.facebook.com/"
+      const modifiedURL = url.replace('www.facebook.com/', 'www.facebook.com/messages/t/');
+  
+      // Check if the modified URL contains "/profile.php?id="
+      if (modifiedURL.includes('/profile.php?id=')) {
+        // Replace "/profile.php?id=" with "/messages/t/"
+        return modifiedURL.replace('/profile.php?id=', '/');
+      } else {
+        // If not, return the modified URL
+        return modifiedURL;
+      }
+    } else {
+      // If "www.facebook.com/" is not present, return the original URL
+      return url;
+    }
+  }
 
-  const handleClick = () => {
+  
+  const handleClick = async(id) => {
+    const response = await axios.get(`${PORT}books/${id}`)
+    // console.log(response.data.sellerId)
+    const userResponse = await axios.get(`${PORT}users/${response.data.sellerId}`)
+    if(userResponse.data.facebookId){
+      setFacebookId(modifyFacebookURL(userResponse.data.facebookId))
+    }
+    setSeller(userResponse.data)
     setShowDetailPopup(!showDetailPopup);
   };
-
+  
   const handleCloseSnackbar = () => {
     setOpenSnackbar(false);
   };
+
+  const getDescriptionToShow = () => {
+    if (showMore) {
+      return item.description;
+    } else {
+      const characters = item.description.split('');
+      const periodIndex = characters.findIndex(char => char === '.');
+      
+      if (periodIndex !== -1) {
+        setShowMore(true);
+        return characters.slice(0, periodIndex + 1).join('');
+      }
+  
+      return item.description;
+    }
+  };
+  
+  
+  useEffect(() => {
+    const truncatedText = getDescriptionToShow();
+    setTruncatedDescription(truncatedText);
+  }, [showDetailPopup, item, getDescriptionToShow]);
+  
 
   return (
     <>
@@ -66,9 +148,9 @@ const Product = ({ item }) => {
               {dataResponse}
             </Alert>
           </Snackbar>
-          <Card>
-          <Grid item sx={{ width: '290px',marginTop: '15px'}}>
-            <Box onClick={() => handleClick(item._id)}>
+          <Card sx={{marginRight: '10px'}}>
+          <Grid item sx={{ width: '290px',marginTop: '15px'}} onClick={() => handleClick(item._id)}>
+            <Box>
               <img src={item.bookPicture} height="250" width="60%" alt="Image is here" />
             </Box>
             <Typography variant="h5" color="success" sx={{ mt: '10px' }}>
@@ -149,7 +231,7 @@ const Product = ({ item }) => {
       </Stack>
 
       <Stack direction="row" sx={{ justifyContent: 'center', m: 2 }}>
-        {item.available === 'sold-out' && (
+        {/* {item.available === 'sold-out' && (
           <Button variant="outlined" color="error" sx={{ fontSize: '12px' }}>
             Stock Empty
           </Button>
@@ -174,11 +256,16 @@ const Product = ({ item }) => {
                   </span>
                   <Button variant="outlined" sx={{ fontSize: '10px' }} onClick={handleOnClick}>
                     Add To Wishlist
-                  </Button>
-                </Stack>
+                  </Button> */}
+                {/* </Stack>
                 
-              )}
-                
+              )} */}
+                <Button variant="outlined" sx={{ fontSize: '10px' }} onClick={handleOnClick}>
+                  Add To Wishlist
+                </Button>
+                <Button variant="outlined" sx={{ fontSize: '10px' }} onClick={() => handleClick(item._id)}>
+                  See Detail
+                </Button>
             </Stack>
           </Grid>
           </Card>
@@ -196,24 +283,78 @@ const Product = ({ item }) => {
                   left: '50%',
                   transform: 'translate(-50%, -50%)',
                   width: '80%',
-                  maxWidth: '600px',
+                  maxWidth: '800px',
                   bgcolor: 'background.paper',
                   borderRadius: 10,
                   boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
                   p: 4,
                 }}
               >
-                <h2 id="modal-title" sx={{ fontWeight: 'bold', mb: 2 }}>
+                <h4 id="modal-title" sx={{ fontWeight: 'bold', mb: 2 }}>
                   Book Detail
-                </h2>
+                </h4>
                 <Box sx={{ display: 'flex' }}>
-                  <img src={item.bookPicture} height="170" width="40%" alt="Image is here" />
-                  <Box sx={{ display: 'block', padding: '30px' }}>
-                    <Typography>{item.description}</Typography>
+                  <img src={item.bookPicture} height="300" width="40%" alt="Image is here" />
+                  <Box sx={{ display: 'block', padding: '20px', width: '60%'}}>
+                   <h2 id="modal-title" sx={{ fontWeight: 'bold', mb: 2 ,color : '#C7DFF7',mt: 0, padding: 'none'}}>
+                     {item.title}
+                    </h2>
+
+                    <Paper
+                      elevation={3}
+                      sx={{
+                        padding: '16px',
+                        width: '100%',
+                        backgroundColor: '#F4F4F4',
+                        borderRadius: '8px',
+                      }}
+                    >
+                      <Typography variant="subtitle1">
+                        <b>Author</b>: {item.author}
+                      </Typography>
+                      <Typography variant="subtitle1">
+                        <b>Publisher</b>: {item.publisher}
+                      </Typography>
+                      <Typography variant="subtitle1">
+                        <b>Price</b>: {item.newPrice}
+                      </Typography>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                        Description
+                      </Typography>
+                      <Typography>
+                        {showMore ? <>{item.description}</>: <>{truncatedDescription}</>}
+                      </Typography>
+                      {truncatedDescription !== item.description && (
+                        <Button onClick={toggleShowMore} color="primary">
+                          {showMore ? 'Show Less' : 'Show More'}
+                        </Button>
+                      )}
+
+
+
+                    </Paper>
+                    <br />
+                    {/* <Typography>{item}</Typography> */}
+                    <hr />
+                    <h4 id="modal-title" sx={{ fontWeight: 'bold', mb: 2 }}>
+                      Seller Detail
+                    </h4>
+                    <Typography>Name: {seller.name}</Typography>
+                    <Typography>Email: {seller.email}</Typography>
+                    <Typography>Contact no: {seller.contact ? <>{seller.contact}</>:<>Not Mentioned</>}</Typography>
+                    <Typography>Address: {seller.userAddress ?  <>{seller.userAddress.city},{seller.userAddress.province}</>: <>Not Mentioned</>}</Typography>
+                    
+                      {facebookId && <Typography style={{ display: 'flex'}}>Connect with Facebook<a href={`${facebookId}`} target="_blank" rel="noopener noreferrer" style={{alignItems: 'center'}}><FacebookOutlinedIcon color='primary' sx={{ ml: 2 }} /></a></Typography>}
+                 
                   </Box>
                 </Box>
+                
+               
 
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button variant="outlined" sx={{ fontSize: '10px' }} onClick={handleOnClick}>
+                    Add To Wishlist
+                  </Button>
                   <Button variant="outlined" onClick={() => setShowDetailPopup(false)} sx={{ mr: 2 }}>
                     Cancel
                   </Button>

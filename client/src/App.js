@@ -14,14 +14,14 @@ import { AuthContextProvider } from './firebase/auth';
 import Profile from './Components/profile/Profile'
 import SellMyItem from './Components/sellItem/SellMyItem';
 import ItemList from './Components/wishlist/ItemList';
-// import BookStore from './Components/store/BookStore';
-// import AddStore from './Components/store/AddStore';
-// import BookStoreManager from './Components/store/BookStoreManager';
-// import ListOfStore from './Components/store/ListOfStore';
 import ItemStatus from './Components/profile/ItemStatus';
 import Billing from './Components/wishlist/Billing';
 import Wishlist from './Components/wishlist/Wishlist';
 import { ComingSoon } from './Components/store/ComingSoon';
+// import BookStore from './Components/store/BookStore';
+// import AddStore from './Components/store/AddStore';
+// import BookStoreManager from './Components/store/BookStoreManager';
+// import ListOfStore from './Components/store/ListOfStore';
 
 const Layout = () =>{
   return(

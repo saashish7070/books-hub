@@ -29,6 +29,7 @@ const SellMyItem = ({ storeId }) => {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [description, setDescription] = useState('');
+  const [showWarning, setShowWarning] = useState(false);
   const [categories,setCategories] = useState('');
   const [price, setPrice] = useState('');
   const [bookPicture, setBookPicture] = useState(null);
@@ -132,7 +133,19 @@ const SellMyItem = ({ storeId }) => {
       console.log("Error")
     }
   }
-      
+
+  const maxCharacters = 120; // Set your desired character limit
+
+  const handleDescriptionChange = (event) => {
+    const inputValue = event.target.value;
+    if (inputValue.length <= maxCharacters) {
+      setDescription(inputValue);
+      setShowWarning(false);
+    } else {
+      setShowWarning(true);
+    }
+  };
+
   const handleFileInputChange = (event) => {
     const file = event.target.files[0];
     setBookPicture(file);
@@ -191,11 +204,16 @@ const SellMyItem = ({ storeId }) => {
           required
           label="Description"
           value={description}
-          onChange={(event) => setDescription(event.target.value)}
-          sx={{ marginBottom: '20px', width: '100%', maxWidth: '400px' }}
+          onChange={handleDescriptionChange}
+          sx={{ marginBottom: '10px', width: '100%', maxWidth: '400px' }}
           multiline
-          rows={4}
+          rows={3}
         />
+        {showWarning && (
+          <Typography variant="caption" color="error">
+            Maximum character limit reached ({maxCharacters} characters).
+          </Typography>
+        )}
         <TextField
           required
           label="Original Price"
