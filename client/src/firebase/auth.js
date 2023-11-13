@@ -26,6 +26,8 @@ const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  
+  const PORT = process.env.REACT_APP_PORT;
   // const [userData, setUserData] = useState(null);
   const googleSignIn = () => {
     const provider = new GoogleAuthProvider();
@@ -38,7 +40,7 @@ export const AuthContextProvider = ({ children }) => {
           email: user.email
         };
         axios
-          .get('http://localhost:5000/users/')
+          .get(`${PORT}users/`)
           .then((response) => {
             const users = response.data;
             const userFound = users.some((existingUser) => {
@@ -46,7 +48,7 @@ export const AuthContextProvider = ({ children }) => {
             });
             if (!userFound) {
               axios
-                .post('http://localhost:5000/users/create', userData)
+                .post(`${PORT}users/create`, userData)
                 .then((response) => {
                   console.log(response.data);
                 })

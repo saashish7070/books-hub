@@ -163,7 +163,7 @@ const Wishlist = () => {
                         <b>{item && item.title}</b>
                       </TableCell>
                       <TableCell>{item && item.author}</TableCell>
-                      <TableCell>Rs.{item && item.newPrice}</TableCell>
+                      <TableCell>Rs.{item && item.newPrice || item.price}</TableCell>
                       <TableCell style={{ display: 'flex', justifyContent: 'center' }}>
                         <DeleteIcon color="error" onClick={() => handleRemoveWishlist(item._id)} />
                       </TableCell>
