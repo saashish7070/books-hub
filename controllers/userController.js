@@ -192,39 +192,71 @@ exports.wishlist_remove = async (req, res) => {
   }
 };
 
+
 exports.item_list_display = async (req, res) => {
   try {
-    const user = JSON.parse(req.headers['user-data']);
-    const foundUser = await User.findOne({ uid: user.uid });
-    console.log(foundUser)
     
+    const id = req.params.id;
+    // console.log(userId)
+
+    // Find the user by UID or any other identifier
+    const foundUser = await User.findOne({ uid: id });
+
     if (!foundUser) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
-    const booksId = foundUser.bookId.map(item => item.toString());
-    
-    if (booksId.length === 0) {
-      return res.status(404).json({ message: 'No books found for the user' });
+
+    // Check if the user has any books in the wishlist
+    if (!foundUser.bookList || foundUser.bookList.length === 0) {
+      return res.status(200).json({ message: 'No books found in the itemList' });
     }
-    
-    const books = [];
-    
-    for (const bookId of booksId) {
-      const book = await Book.findById(bookId);
-      if (book) {
-        books.push(book);
-      }
-    }
-    
-    console.log(books)
-    res.json(books);
-  } catch (err) {
-    console.error('Error fetching user cart data:', err);
-    return res.status(500).json({ message: 'Internal server error' });
+
+    // If there are books in the wishlist, fetch the details
+    const itemList = await Promise.all(
+      foundUser.bookList.map(async (bookList) => {
+        // Assuming each bookList is a valid ObjectId
+        const book = await Book.findById(bookList);
+        return book; // Modify this based on your Book model structure
+      })
+    );
+    console.log(itemList)
+    res.status(200).json(itemList);
+  } catch (error) {
+    console.error('Error fetching wishlist data:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
+
+exports.item_list_remove = async (req, res) => {
+    try {
+      const userId = req.params.id; // Assuming the user ID is passed as a parameter in the URL
+      const { bookList } = req.body; // Assuming the book ID is sent in the request body
+  
+      // Find the user by ID
+      const foundUser = await User.findById(userId);
+  
+      if (!foundUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Check if the book is in the wishlist
+      const bookIndex = foundUser.bookList.indexOf(bookList);
+      if (bookIndex === -1) {
+        return res.status(404).json({ message: 'Book not found in the wishlist' });
+      }
+  
+      // Remove the book from the wishlist
+      foundUser.bookList.splice(bookIndex, 1);
+      await foundUser.save();
+      const deletedBook = await Book.findByIdAndDelete(bookList);
+      
+      res.status(200).json({ message: 'Book removed from the book list successfully',item: deletedBook });
+    } catch (error) {
+      console.error('Error removing book from book list:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+};
 
 exports.item_list = async (req, res) => {
   try {

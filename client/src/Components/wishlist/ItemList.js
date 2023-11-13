@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  CircularProgress,
   Paper,
   Stack,
   Table,
@@ -11,85 +10,71 @@ import {
   TableHead,
   TableRow,
   TextField,
-  Typography
+  Typography,
+  CircularProgress,
+  Grid,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/system';
 import { UserAuth } from '../../firebase/auth';
 import axios from 'axios';
 import { NavLink } from 'react-router-dom';
+import Product from '../homepage/Product';
 
 const ItemList = () => {
   const { user } = UserAuth();
-  const PORT = process.env.REACT_APP_PORT;
   const [data, setData] = useState([]);
-  const [dataFilter,setDataFilter] = useState([])
   const [loading, setLoading] = useState(true);
-  const [amount, setAmount] = useState({
-    subTotal: '0.0',
-    delivery: '0.0',
-    discount: '0.0',
-    total: '0.0'
-  });
+  const [detail, setDetail] = useState(null); // Use null to indicate no specific item selected
+
+  const PORT = process.env.REACT_APP_PORT;
+
+  let show = false;
+
+  const handleRemoveListItem = async(id)=>{
+    
+    // console.log(user.uid)
+    const userIdResponse = await axios.get(`${PORT}users/profile/${user.uid}`)
+    let userId = userIdResponse.data._id
+    console.log(userId)
+    const response = await axios.delete(`${PORT}users/itemList/${userId}`, { data: { bookList: id } })
+    fetchData();
+    // window.location.reload();
+  }
+
+  const fetchData = async () => {
+    try {
+      let userId = user.uid
+      console.log(userId)
+
+      const response = await axios.get(`${PORT}users/itemList/${userId}`);
+      console.log(response.data)
+      setData(response.data);
+      setLoading(false);
+
+    } catch (error) {
+      console.log('Error fetching list item data:', error);
+      setLoading(false);
+    }
+  };
+
+  const viewItemDetails = (id) => {
+    setDetail(id);
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`${PORT}users/itemList`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'User-Data': JSON.stringify(user)
-          }
-        });
-  
-        // Use the original data for filtering
-        setData(response.data);
-        setLoading(false);
-  
-        // Filter items with the same ID and calculate their total quantity
-        const filteredData = response.data.reduce((acc, item) => {
-          const existingItem = acc.find((el) => el._id === item._id);
-          if (existingItem) {
-            existingItem.quantity += 1;
-          } else {
-            acc.push({ ...item, quantity: 1 });
-          }
-          return acc;
-        }, []);
-  
-        // Use the filtered data for state update
-        setDataFilter(filteredData);
-  
-        const calculateTotalAmount = () => {
-          let totalAmount = 0;
-          filteredData.forEach((item) => {
-            totalAmount += item.price * item.quantity;
-          });
-          return totalAmount.toFixed(2);
-        };
-  
-        // Update the totalAmount based on the filtered data
-        setAmount((prevAmount) => ({
-          ...prevAmount,
-          totalAmount: calculateTotalAmount(),
-        }));
-      } catch (error) {
-        console.log('Error fetching data:', error);
-        setLoading(false);
-      }
-    };
-  
     fetchData();
-  }, [user]);
-  
-  const CartContainer = styled(Box)({
+  }, []);
+
+  const ListItemContainer = styled(Box)({
     display: 'flex',
+    paddingTop: '60px',
     flexDirection: 'column',
     alignItems: 'center',
     padding: '${(props) => props.theme.spacing(3)}px',
   });
 
-  const EmptyCartMessage = styled(Typography)({
+  const EmptyListItemMessage = styled(Typography)({
     margin: '${(props) => props.theme.spacing(2)}px',
   });
 
@@ -118,18 +103,40 @@ const ItemList = () => {
     padding: '15px 50px',
   });
 
+  if (!user) {
+    return (
+      <ListItemContainer>
+        <Typography variant="h6" sx={{ margin: '200px' }}>
+          Login to Add Items to ListItem
+        </Typography>
+      </ListItemContainer>
+    );
+  }
+
   if (loading) {
     return (
-      <Box sx={{ height: '70vh', position: 'relative' }}>
-        <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%' }} />
-      </Box>
+      <ListItemContainer sx={{height: '70vh',position: 'relative'}}>
+        <CircularProgress sx={{position:'absolute', top:'50%',left:'50%'}}/>
+      </ListItemContainer>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <ListItemContainer>
+        <EmptyListItemMessage variant="h6" style={{ margin: 'auto', padding:'200px 0'}}>
+          Your ListItem is empty.
+        </EmptyListItemMessage>
+      </ListItemContainer>
     );
   }
   return (
-    <CartContainer>
-            <Box>
-                <Typography variant="h4" gutterBottom>Item I Placed</Typography>
-            </Box>
+    <ListItemContainer>
+      {data && data.length > 0 ? (
+        <>
+          <Box>
+            <Typography variant="h4" gutterBottom>Item ListItem</Typography>
+          </Box>
           <Box style={{ display: 'block' }}>
             <Paper style={{ margin: '40px 150px', padding: '5px' }}>
               <Table style={{ width: '100%', justifyContent: 'center' }}>
@@ -142,9 +149,6 @@ const ItemList = () => {
                       <b>Author</b>
                     </TableCell>
                     <TableCell>
-                      <b>Quantity</b>
-                    </TableCell>
-                    <TableCell>
                       <b>Price</b>
                     </TableCell>
                     <TableCell style={{ width: '50px' }}>
@@ -153,60 +157,61 @@ const ItemList = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {dataFilter.map((item) => {
-                    return (
-                      <CellStyle key={item._id}>
-                        <TableCell>
-                          <b>{item.title}</b>
-                        </TableCell>
-                        <TableCell>{item.author}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>Rs.{item.price}</TableCell>
-                        <TableCell style={{ display: 'flex', justifyContent: 'center' }}>
-                           <DeleteIcon color='error'/>
-                        </TableCell>
-                      </CellStyle>
-                    );
-                  })}
+                  {data.map((item) => (
+                    <CellStyle key={item._id} onClick={() => viewItemDetails(item._id)}>
+                      <TableCell>
+                        <b>{item && item.title}</b>
+                      </TableCell>
+                      <TableCell>{item && item.author}</TableCell>
+                      <TableCell>Rs.{item && item.newPrice || item.price}</TableCell>
+                      <TableCell style={{ display: 'flex', justifyContent: 'center' }}>
+                        <DeleteIcon color="error" onClick={() => handleRemoveListItem(item._id)} />
+                      </TableCell>
+                    </CellStyle>
+                  ))}
                 </TableBody>
               </Table>
               <Box style={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
-                <BoxStyle>
-                  <Typo>Total Amount:</Typo>
-                  <Typo>Rs.{amount.totalAmount}</Typo>
-                </BoxStyle>
-                {/* <BoxStyle>
-                  <Typo>Delivery:</Typo>
-                  <Typo>Rs.{amount.delivery}</Typo>
-                </BoxStyle> */}
-                {/* <BoxStyle>
-                  <Typo>Discount:</Typo>
-                  <Typo>Rs.{amount.discount}</Typo>
-                </BoxStyle> */}
-                {/* <BoxStyle>
-                  <Typo>Total:</Typo>
-                  <Typo>Rs.{amount.total}</Typo>
-                </BoxStyle> */}
+                <Typography variant="body1" color="error">
+                  Your ListItem items will be saved for future reference.
+                </Typography>
               </Box>
+
+              {detail !== null && (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <Grid item key={detail}>
+                    <Product item={data.find((item) => item._id === detail)} show={show} />
+                  </Grid>
+                </div>
+              )}
+
               <Stack direction="row" sx={{ justifyContent: 'flex-end', marginTop: 2, marginBottom: 3 }}>
                 <NavLink to='/' className='link'>
-                    <ButtonStyle
+                  <ButtonStyle
                     sx={{
-                        minWidth: '150px',
-                        marginRight: '25px',
+                      minWidth: '150px',
+                      marginRight: '25px',
                     }}
                     color="primary"
                     variant="contained"
-                    >
-                    Continue Shopping
-                    </ButtonStyle>
+                  >
+                    Back to Search
+                  </ButtonStyle>
                 </NavLink>
               </Stack>
             </Paper>
           </Box>
-    </CartContainer>
+        </>
+      ) : (
+        <ListItemContainer>
+        <EmptyListItemMessage variant="h6" style={{ padding: '100px 0 200px 0' }}>
+          Your ListItem is empty.
+        </EmptyListItemMessage>
+      </ListItemContainer>
+    )
+    }
+  </ListItemContainer>
   );
 };
 
 export default ItemList;
-

@@ -40,6 +40,7 @@ const SellMyItem = ({ storeId }) => {
   const [newPrice, setNewPrice] = useState('');
   const [uploadProgress] = useState(0);
   const [placed, setPlaced] = useState('');
+  const [filesType,setFilesType] = useState(true)
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const { user } = UserAuth();
   const PORT = process.env.REACT_APP_PORT;
@@ -149,8 +150,25 @@ const SellMyItem = ({ storeId }) => {
 
   const handleFileInputChange = (event) => {
     const file = event.target.files[0];
-    setBookPicture(file);
+  
+    // Check if a file is selected
+    if (file) {
+      // Check if the selected file is an image
+      const allowedFileTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      if (allowedFileTypes.includes(file.type)) {
+        setBookPicture(file);
+        setFilesType(true)
+        // Optionally, you can reset any previous error message here
+      } else {
+        setFilesType(false)
+        alert('Invalid file type. Please select an image file.')
+        // Display an error message for invalid file type
+        console.error('Invalid file type. Please select an image file.');
+        // Optionally, you can set an error state or show a warning to the user
+      }
+    }
   };
+  
 
   const setUploadProgress = (progress) => {
     // Handle progress updates here
@@ -255,9 +273,10 @@ const SellMyItem = ({ storeId }) => {
         <Input type="file" onChange={handleFileInputChange} sx={{ marginBottom: '20px', width: '100%', maxWidth: '400px' }} />
         <LinearProgress variant="determinate" value={uploadProgress} sx={{ width: '100%', marginBottom: '20px' }} />
        
+        {filesType && 
         <Button type="submit" variant="contained" color="primary" sx={{ textTransform: 'none', marginTop: '20px' }}>
           {loading ? <CircularProgress size={24} /> : 'Sell'}
-        </Button>
+        </Button>}
       </FormContainer>
     </ThemeProvider>
   );

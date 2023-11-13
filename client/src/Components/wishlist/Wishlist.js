@@ -120,16 +120,6 @@ const Wishlist = () => {
       </WishlistContainer>
     );
   }
-
-  if (data.length === 0) {
-    return (
-      <WishlistContainer>
-        <EmptyWishlistMessage variant="h6" style={{ margin: '200px' }}>
-          Your wishlist is empty.
-        </EmptyWishlistMessage>
-      </WishlistContainer>
-    );
-  }
   return (
     <WishlistContainer>
       {data && data.length > 0 ? (
@@ -203,14 +193,15 @@ const Wishlist = () => {
           </Box>
         </>
       ) : (
-        <TableRow>
-          <TableCell colSpan={4} align="center">
-            Your wishlist is empty.
-          </TableCell>
-        </TableRow>
-      )}
-    </WishlistContainer>
-  );
-};
+        <WishlistContainer>
+        <EmptyWishlistMessage variant="h6" style={{ padding: '100px 0 200px 0' }}>
+          Your wishlist is empty.
+        </EmptyWishlistMessage>
+      </WishlistContainer>
+    )
+    }
+  </WishlistContainer>
+  )
+}
 
 export default Wishlist;
