@@ -6,10 +6,11 @@ import { styled } from '@mui/system';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import Wishlist from '../wishlist/Wishlist';
+import EditIcon from '@mui/icons-material/Edit';
 
 const Profile = () => {
   const { user, logOut } = UserAuth();
-  // const [data,setData] = useState([])
+  const [data,setData] = useState([])
   const navigate = useNavigate();
   const theme = createTheme();
   const PORT = process.env.REACT_APP_PORT;
@@ -43,19 +44,24 @@ const Profile = () => {
   const userDisplayName = Cookies.get('userName') || '';
   console.log(userDisplayName)
 
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`${PORT}users/profile/${user.uid}`);
+      console.log(response.data);
+      setData(response.data);
+    } catch (error) {
+      console.error('Error fetching profile data:', error);
+    }
+  };
 
+  // fetchData();
   // Apis
 
-  // useEffect(async()=>{
-  //   const response = await axios.get(`${PORT}users/profile`, {
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //           'User-Data': JSON.stringify(user)
-  //         }
-  //       });
-  //   setData(response.data);
-  // },[])
-
+  useEffect(() => {
+    fetchData();
+  }, []);
+  
+  
 
   //Styles
   const SectionContainer = styled(Box)(({ theme }) => ({
@@ -136,6 +142,41 @@ const Profile = () => {
         <SectionContainer marginTop={3} marginBottom={3} width="100%">
           <Typography variant="h6">Account Information</Typography>
           <Divider />
+          <Typography variant="subtitle1">
+          <b>Name</b>: {data && <>{data.name}</>}
+          <span style={{ marginLeft: '15px' ,cursor: 'pointer'}}>
+                <EditIcon sx={{ height: '15px', color:'#403BD6' }} />
+                Edit
+          </span>
+          </Typography>
+          <Typography variant="subtitle1">
+            <b>Email</b>: {data && <>{data.email}</>}
+            <span style={{ marginLeft: '15px' ,cursor: 'pointer'}}>
+                <EditIcon sx={{ height: '15px', color:'#403BD6' }} />
+                Edit
+          </span>
+          </Typography>
+          <Typography variant="subtitle1">
+            <b>Contact</b>: {data.contact ? data.contact : "Not mentioned"}
+            <span style={{ marginLeft: '15px' ,cursor: 'pointer'}}>
+                <EditIcon sx={{ height: '15px', color:'#403BD6' }} />
+                Edit
+          </span>
+          </Typography>
+          <Typography variant="subtitle1">
+            <b>Billing Address</b>: {data.userAddress ? <>{data.userAddress.address},{data.userAddress.area},{data.userAddress.city},{data.userAddress.province}</> : "Not mentioned"}
+            <span style={{ marginLeft: '15px' ,cursor: 'pointer'}}>
+                <EditIcon sx={{ height: '15px', color:'#403BD6' }} />
+                Edit
+          </span>
+          </Typography>
+          <Typography variant="subtitle1">
+            <b>Social Media</b>: {data.facebookId ? data.facebookId : "Not mentioned"}
+            <span style={{ marginLeft: '15px' ,cursor: 'pointer'}}>
+                <EditIcon sx={{ height: '15px', color:'#403BD6' }} />
+                Edit
+          </span>
+          </Typography>           
         </SectionContainer>
 
         <CustomSectionContainer marginTop={3} marginBottom={3}>
