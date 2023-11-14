@@ -322,7 +322,10 @@ const Product = ({ item,show }) => {
                         <b>Publisher</b>: {item.publisher}
                       </Typography>
                       <Typography variant="subtitle1">
-                        <b>Price</b>: {item.newPrice}
+                        <b>Date of Published</b>: {item.dateOfPublish}
+                      </Typography>
+                      <Typography variant="subtitle1">
+                        <b>Price</b>: {item.newPrice || item.price}
                       </Typography>
                       <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                         Description

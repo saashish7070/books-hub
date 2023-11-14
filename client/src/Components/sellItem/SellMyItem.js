@@ -29,6 +29,8 @@ let categoriesItem = ["Novel","Engineering Books","MBBS Books","others"]
 const SellMyItem = ({ storeId }) => {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
+  const [publisher, setPublisher] = useState('');
+  const [dateOfPublish, setDateOfPublish] = useState('');
   const [description, setDescription] = useState('');
   const [showWarning, setShowWarning] = useState(false);
   const [categories,setCategories] = useState('');
@@ -84,6 +86,8 @@ const SellMyItem = ({ storeId }) => {
         const newBook = {
           title,
           author,
+          publisher,
+          dateOfPublish,
           description,
           categories,
           price,
@@ -96,6 +100,8 @@ const SellMyItem = ({ storeId }) => {
         const response = await axios.post(`${PORT}books/create`, newBook);
         setTitle('');
         setAuthor('');
+        setPublisher('');
+        setDateOfPublish('');
         setDescription('');
         setCategories('');
         setPrice('');
@@ -204,6 +210,22 @@ const SellMyItem = ({ storeId }) => {
           onChange={(event) => setAuthor(event.target.value)}
           sx={{ marginBottom: '20px', width: '100%', maxWidth: '400px' }}
         />
+        <TextField
+          required
+          label="Publisher"
+          value={publisher}
+          onChange={(event) => setPublisher(event.target.value)}
+          sx={{ marginBottom: '20px', width: '100%', maxWidth: '400px' }}
+        />
+        <TextField
+          required
+          label="Date of Published"
+          type="number"  // Set the input type to "number"
+          value={dateOfPublish}
+          onChange={(event) => setDateOfPublish(event.target.value)}
+          sx={{ marginBottom: '20px', width: '100%', maxWidth: '400px' }}
+        />
+
        <TextField
           required
           select
