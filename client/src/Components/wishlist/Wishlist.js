@@ -48,7 +48,7 @@ const Wishlist = () => {
       console.log(userId)
 
       const response = await axios.get(`${PORT}users/wishlist/${userId}`);
-      console.log(response)
+      console.log(response.data)
       setData(response.data);
       setLoading(false);
 

@@ -51,7 +51,7 @@ exports.user_profile_detail = async (req, res) => {
     const id = req.params.id;
     // console.log(id)
     const foundUser = await User.findOne({uid: id});
-    console.log(foundUser)
+    // console.log(foundUser)
     if (!foundUser) {
       res.status(404).json({ message: "User not found" });
     } else {
@@ -98,25 +98,26 @@ exports.wishlist_display = async (req, res) => {
 
     // Find the user by UID or any other identifier
     const foundUser = await User.findOne({ uid: id });
-
+    
     if (!foundUser) {
       return res.status(404).json({ message: 'User not found' });
     }
-
+    
     // Check if the user has any books in the wishlist
     if (!foundUser.bookId || foundUser.bookId.length === 0) {
       return res.status(200).json({ message: 'No books found in the wishlist' });
     }
-
+    // console.log(foundUser.bookId.toString())
     // If there are books in the wishlist, fetch the details
     const wishlistItems = await Promise.all(
       foundUser.bookId.map(async (bookId) => {
         // Assuming each bookId is a valid ObjectId
         const book = await Book.findById(bookId);
+        // console.log(book)
         return book; // Modify this based on your Book model structure
       })
     );
-
+    // console.log(wishlistItems)
     res.status(200).json(wishlistItems);
   } catch (error) {
     console.error('Error fetching wishlist data:', error);
@@ -139,6 +140,8 @@ exports.wishlist = async (req, res) => {
     
     // Update the buyerId field of the book
     const foundBook = await Book.findById(bookId);
+    
+
     if (!foundBook) {
       return res.status(404).json({ message: 'Book not found' });
     }
@@ -152,17 +155,16 @@ exports.wishlist = async (req, res) => {
     foundUser.bookId.push(bookId);
     await foundUser.save();
     
-    // foundBook.booked = true;
+    foundBook.wishlistUsers.push(foundUser._id);
     // foundBook.buyerId = foundUser._id;
-    // await foundBook.save();
-
+    await foundBook.save();
+    
     return res.status(200).json({ message: 'Book added to your cart successfully' });
   } catch (error) {
     console.error('Error updating user bookId and book buyerId:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
-
 exports.wishlist_remove = async (req, res) => {
   try {
     const userId = req.params.id; // Assuming the user ID is passed as a parameter in the URL
@@ -175,15 +177,26 @@ exports.wishlist_remove = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check if the book is in the wishlist
+    // Check if the book is in the user's wishlist
     const bookIndex = foundUser.bookId.indexOf(bookId);
     if (bookIndex === -1) {
       return res.status(404).json({ message: 'Book not found in the wishlist' });
     }
 
-    // Remove the book from the wishlist
+    // Remove the book from the user's wishlist
     foundUser.bookId.splice(bookIndex, 1);
     await foundUser.save();
+
+    // Find the book by ID
+    const foundBook = await Book.findById(bookId);
+
+    if (!foundBook) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
+
+    // Iterate over the wishlistUsers of the foundBook and remove the user ID
+    foundBook.wishlistUsers = foundBook.wishlistUsers.filter(wishlistUserId => wishlistUserId.toString() !== userId);
+    await foundBook.save();
 
     res.status(200).json({ message: 'Book removed from the wishlist successfully' });
   } catch (error) {
@@ -191,6 +204,7 @@ exports.wishlist_remove = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 
 exports.item_list_display = async (req, res) => {
@@ -219,7 +233,7 @@ exports.item_list_display = async (req, res) => {
         return book; // Modify this based on your Book model structure
       })
     );
-    console.log(itemList)
+    // console.log(itemList)
     res.status(200).json(itemList);
   } catch (error) {
     console.error('Error fetching wishlist data:', error);
@@ -229,34 +243,49 @@ exports.item_list_display = async (req, res) => {
 
 
 exports.item_list_remove = async (req, res) => {
-    try {
-      const userId = req.params.id; // Assuming the user ID is passed as a parameter in the URL
-      const { bookList } = req.body; // Assuming the book ID is sent in the request body
-  
-      // Find the user by ID
-      const foundUser = await User.findById(userId);
-  
-      if (!foundUser) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      // Check if the book is in the wishlist
-      const bookIndex = foundUser.bookList.indexOf(bookList);
-      if (bookIndex === -1) {
-        return res.status(404).json({ message: 'Book not found in the wishlist' });
-      }
-  
-      // Remove the book from the wishlist
-      foundUser.bookList.splice(bookIndex, 1);
-      await foundUser.save();
-      const deletedBook = await Book.findByIdAndDelete(bookList);
-      
-      res.status(200).json({ message: 'Book removed from the book list successfully',item: deletedBook });
-    } catch (error) {
-      console.error('Error removing book from book list:', error);
-      res.status(500).json({ message: 'Internal server error' });
+  try {
+    const userId = req.params.id; // Assuming the user ID is passed as a parameter in the URL
+    const { bookList } = req.body; // Assuming the book ID is sent in the request body
+
+    // Find the user by ID
+    const foundUser = await User.findById(userId);
+
+    if (!foundUser) {
+      return res.status(404).json({ message: 'User not found' });
     }
+
+    // Check if the book is in the user's bookList
+    const bookIndex = foundUser.bookList.indexOf(bookList);
+    if (bookIndex === -1) {
+      return res.status(404).json({ message: 'Book not found in the book list' });
+    }
+
+    // Remove the book from the user's bookList
+    foundUser.bookList.splice(bookIndex, 1);
+    await foundUser.save();
+
+    // Find and delete the book by ID
+    const deletedBook = await Book.findByIdAndDelete(bookList);
+
+    // Iterate over the wishlistUsers of the deletedBook and remove the user ID
+    for (const userId of deletedBook.wishlistUsers) {
+      const user = await User.findById(userId);
+      if (user) {
+        const userBookIndex = user.bookId.indexOf(bookList);
+        if (userBookIndex !== -1) {
+          user.bookId.splice(userBookIndex, 1);
+          await user.save();
+        }
+      }
+    }
+
+    res.status(200).json({ message: 'Book removed from the book list successfully', item: deletedBook });
+  } catch (error) {
+    console.error('Error removing book from book list:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
+
 
 exports.item_list = async (req, res) => {
   try {

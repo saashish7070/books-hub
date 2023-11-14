@@ -11,6 +11,7 @@ const bookSchema = new Schema({
   bookPicture: { type: String, required: true },
   status: { type: String, required: true },
   sellerId: { type: Schema.Types.ObjectId, ref: 'User' },
+  wishlistUsers : [{type:Schema.Types.ObjectId, ref:'User'}],
   comment: [{type: Schema.Types.ObjectId, ref: 'Comment'}],
   timeStamp: { type: Date },
   // bookStore: { type: Schema.Types.ObjectId, ref: 'Store' },
