@@ -11,7 +11,7 @@ router.post('/create', user_controller.user_create_post);
 
 router.post('/profile/:id', user_controller.user_profile);
 router.get('/profile/:id', user_controller.user_profile_detail);
-// router.patch('/profile', user_controller.user_detail_updated);
+router.patch('/profile/:id', user_controller.user_detail_updated);
 
 
 router.post('/addToWishlist', user_controller.wishlist);

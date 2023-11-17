@@ -47,6 +47,8 @@ const Navbar = () => {
     };
   }, []);
 
+  // console.log(user.photoURL)
+
   const NavTool = styled(Toolbar)({
     justifyContent: 'space-between',
     '@media (max-width: 900px)': {

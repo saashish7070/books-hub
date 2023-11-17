@@ -62,30 +62,25 @@ exports.user_profile_detail = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-exports.user_detail_update = async (req, res) => {
+exports.user_detail_updated = async (req, res) => {
   try {
-    const { user } = req.body;
-    // Find the user by UID or any other identifier
-    const foundUser = await User.findOne({ uid: user.uid });
+    const id = req.params.id;
+    const updateFields = req.body;
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: id }, // Find the user by ID
+      { $set: updateFields }, // Update specific fields using $set
+      { new: true } // Return the updated document
+    );
 
-    if (!foundUser) {
-      res.status(404).json({ message: "User not found" });
-    } else {
-      // Update user details based on the request body
-      // Modify this part based on your specific requirements
-      foundUser.name = user.name || foundUser.name;
-      foundUser.email = user.email || foundUser.email;
-      foundUser.userAddress = user.userAddress || foundUser.userAddress;
-      foundUser.contact = user.contact || foundUser.contact;
-
-      // Save the updated user
-      const updatedUser = await foundUser.save();
-
-      res.json(updatedUser);
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
     }
+
+    // Respond with the updated user details for success
+    res.json(updatedUser);
   } catch (err) {
     console.error(err);
+    // Respond with an error message for internal server error
     res.status(500).json({ message: "Internal server error" });
   }
 };

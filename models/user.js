@@ -9,7 +9,7 @@ const userSchema = new Schema({
   userAddress:{
     province: {type: String},
     city: {type: String},
-    area: {type: String},
+    district: {type: String},
     address: {type: String}
   },
   contact: {type: Number,default: null},
