@@ -1,8 +1,7 @@
-const express = require('express');
-// const bodyParser = require('body-parser');
 require('dotenv').config();
+require('./database/db_config');
+const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
 const bookRoutes = require('./routes/bookRoutes');
 const userRoutes = require('./routes/userRoutes');
 const storeRoutes = require('./routes/storeRoutes');
@@ -21,17 +20,6 @@ app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(cors());
 
 
-// Connect to the MongoDB database 
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-
-const connection = mongoose.connection;
-connection.once('open', () => {
-  console.log('MongoDB database connection established successfully');
-});
 
 //Routes
 app.use('/books', bookRoutes);
