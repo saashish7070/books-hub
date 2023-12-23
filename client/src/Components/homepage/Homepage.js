@@ -14,9 +14,10 @@ const Homepage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortOption, setSortOption] = useState('asc');
   const [searchQuery, setSearchQuery] = useState('');
-  const [status, setStatus] = useState(null);
+  const [status, setStatus] = useState('');
   const [categories,setCategories] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [filterItem, setFilterItem] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const PORT = process.env.REACT_APP_PORT;
 
@@ -34,7 +35,7 @@ const Homepage = () => {
     // Perform your search logic here using the value
   };
   const handleCategoryClick = (category) => {
-    setSelectedCategory(category);
+    setCategories(category);
     // Perform actions based on the selected category
   };
 
@@ -67,20 +68,10 @@ const Homepage = () => {
     setSortOption(event.target.value);
     // Perform sorting based on price
   };
-
-  const handleSearchQueryChange = (event) => {
-    setSearchQuery(event.target.value);
-    // Perform searching based on search query
+ 
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
   };
-
-  const handleFilterButtonClick = () => {
-    setIsModalOpen(!isModalOpen);
-  };
-
-  useEffect(() => {
-    fetchItems();
-  }, []);
-  
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
   };
@@ -90,6 +81,53 @@ const Homepage = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = container.slice(indexOfFirstItem, indexOfLastItem);
 
+  // Filter products based on the search term
+ 
+  const itemFiltered = () => {
+    if (categories === '') {
+      // If no category filter is applied, return all items
+      setFilterItem(currentItems);
+      return;
+    }
+  
+    // Filter items based on status and categories
+    const filteredItems = currentItems.filter((item) => {
+      const statusMatch = !status || item.status === status;
+      const categoryMatch =
+        categories.length === 0 || categories.includes(item.categories);
+      return statusMatch && categoryMatch;
+    });
+  
+    // Sort filtered items based on the selected sort option
+    const sortedItems = filteredItems.sort((a, b) => {
+      if (sortOption === 'asc') {
+        return a.price - b.price;
+      } else if (sortOption === 'desc') {
+        return b.price - a.price;
+      }
+      return 0;
+    });
+  
+    setFilterItem(sortedItems);
+  };
+  
+  const handleFilterButtonClick = () => {
+    itemFiltered();
+    setIsModalOpen(!isModalOpen);
+  };
+
+  
+  
+  useEffect(() => {
+    // Fetch items and call itemFiltered on initial render
+    fetchItems();
+    itemFiltered();
+  }, [categories, sortOption]); // Add sortOption as a dependency
+
+  useEffect(()=>{
+    setFilterItem(false)
+  },[])
+  
   if (loading) {
     return (
       <Box sx={{ height: '70vh', position: 'relative' }}>
@@ -104,7 +142,7 @@ const Homepage = () => {
       <Box>
       <Stack direction="row" sx={{ justifyContent: 'space-between', display: isBigScreen ? 'flex' : 'block' ,marginTop: 2, marginBottom: 3, marginRight: 3, marginLeft: 3}}>
           <Typography variant="h5" sx={{ color: 'black',fontWeight: 600 }}>Popular Books</Typography>
-          <SearchBar onSearch={handleSearch} />
+          <SearchBar onSearch={handleSearchChange} />
           <Button variant="contained" sx={{height: '36px'}} onClick={handleModalOpen}>
             Filter <FilterAltOutlinedIcon />
           </Button>
@@ -194,13 +232,47 @@ const Homepage = () => {
 
 
         <Box sx={{ maxWidth: '90%', margin: 'auto', textAlign: 'center' }}>
-          <Grid container justifyContent="center" spacing={{ xs: 2, md: 3 }} columns={{ xs: 1, sm: 2, md: 3, lg: 4 }}>
+          {/* <Grid container justifyContent="center" spacing={{ xs: 2, md: 3 }} columns={{ xs: 1, sm: 2, md: 3, lg: 4 }}>
             {currentItems.map((item) => (
               <Grid item key={item._id}>
                 <Product item={item} show={show}/>
               </Grid>
             ))}
-          </Grid>
+          </Grid> */}
+
+            <Grid
+              container
+              justifyContent="center"
+              spacing={{ xs: 2, md: 3 }}
+              columns={{ xs: 1, sm: 2, md: 3, lg: 4 }}
+            >
+          {filterItem
+          ? filterItem.map((item) => (
+              <Grid item key={item._id}>
+                <Product item={item} show={show} />
+              </Grid>
+            ))
+          : currentItems
+              .filter((item) => {
+                return (
+                  item &&
+                  (item.title &&
+                    item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    item.author &&
+                    item.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    item.publisher &&
+                    item.publisher.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    item.category &&
+                    item.category.toLowerCase().includes(searchTerm.toLowerCase()))
+                );
+              })
+              .map((item) => (
+                <Grid item key={item._id}>
+                  <Product item={item} show={show} />
+                </Grid>
+              ))}
+      </Grid>
+
         </Box>
 
 
@@ -219,13 +291,3 @@ const Homepage = () => {
 };
 
 export default Homepage;
-
-// import React from 'react'
-
-// const Homepage = () => {
-//   return (
-//     <div>Homepage</div>
-//   )
-// }
-
-// export default Homepage

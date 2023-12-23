@@ -3,16 +3,21 @@ import {
   Box,
   Button,
   Paper,
+  Grid,
   Stack,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  TextField,
   Typography,
   CircularProgress,
-  Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  ButtonGroup,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/system';
@@ -26,32 +31,37 @@ const Wishlist = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState(null); // Use null to indicate no specific item selected
-
-  const PORT = process.env.REACT_APP_PORT;
+  const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState(null);
 
   let show = false;
+  const PORT = process.env.REACT_APP_PORT;
 
-  const handleRemoveWishlist = async(id)=>{
-    
-    // console.log(user.uid)
-    const userIdResponse = await axios.get(`${PORT}users/profile/${user.uid}`)
-    let userId = userIdResponse.data._id
-    console.log(userId)
-    const response = await axios.delete(`${PORT}users/wishlist/${userId}`, { data: { bookId: id } })
+  const handleRemoveWishlist = async (id) => {
+    setItemToRemove(id);
+    setConfirmationOpen(true);
+  };
+
+  const handleConfirmRemove = async () => {
+    const userIdResponse = await axios.get(`${PORT}users/profile/${user.uid}`);
+    const userId = userIdResponse.data._id;
+    await axios.delete(`${PORT}users/wishlist/${userId}`, { data: { bookId: itemToRemove } });
     fetchData();
-    // window.location.reload();
-  }
+    setConfirmationOpen(false);
+    setItemToRemove(null);
+  };
+
+  const handleCloseConfirmationDialog = () => {
+    setConfirmationOpen(false);
+    setItemToRemove(null);
+  };
 
   const fetchData = async () => {
     try {
-      let userId = user.uid
-      console.log(userId)
-
+      const userId = user.uid;
       const response = await axios.get(`${PORT}users/wishlist/${userId}`);
-      console.log(response.data)
       setData(response.data);
       setLoading(false);
-
     } catch (error) {
       console.log('Error fetching wishlist data:', error);
       setLoading(false);
@@ -85,20 +95,6 @@ const Wishlist = () => {
     },
   });
 
-  const BoxStyle = styled(Box)({
-    margin: '10px 10px',
-    width: '250px',
-    padding: '20px 25px',
-    border: '1px solid #2196f3',
-    display: 'flex',
-    justifyContent: 'space-evenly',
-    backgroundColor: '#ffffff',
-  });
-
-  const Typo = styled(Typography)({
-    fontWeight: '600',
-  });
-
   const ButtonStyle = styled(Button)({
     padding: '15px 50px',
   });
@@ -115,17 +111,20 @@ const Wishlist = () => {
 
   if (loading) {
     return (
-      <WishlistContainer sx={{height: '70vh',position: 'relative'}}>
-        <CircularProgress sx={{position:'absolute', top:'50%',left:'50%'}}/>
+      <WishlistContainer sx={{ height: '70vh', position: 'relative' }}>
+        <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%' }} />
       </WishlistContainer>
     );
   }
+
   return (
     <WishlistContainer>
       {data && data.length > 0 ? (
         <>
           <Box>
-            <Typography variant="h4" gutterBottom>Item Wishlist</Typography>
+            <Typography variant="h4" gutterBottom>
+              Item Wishlist
+            </Typography>
           </Box>
           <Box style={{ display: 'block' }}>
             <Paper style={{ margin: '40px 150px', padding: '5px' }}>
@@ -153,7 +152,7 @@ const Wishlist = () => {
                         <b>{item && item.title}</b>
                       </TableCell>
                       <TableCell>{item && item.author}</TableCell>
-                      <TableCell>Rs.{item && item.newPrice || item.price}</TableCell>
+                      <TableCell>Rs.{item && (item.newPrice || item.price)}</TableCell>
                       <TableCell style={{ display: 'flex', justifyContent: 'center' }}>
                         <DeleteIcon color="error" onClick={() => handleRemoveWishlist(item._id)} />
                       </TableCell>
@@ -176,7 +175,7 @@ const Wishlist = () => {
               )}
 
               <Stack direction="row" sx={{ justifyContent: 'flex-end', marginTop: 2, marginBottom: 3 }}>
-                <NavLink to='/' className='link'>
+                <NavLink to="/" className="link">
                   <ButtonStyle
                     sx={{
                       minWidth: '150px',
@@ -191,17 +190,33 @@ const Wishlist = () => {
               </Stack>
             </Paper>
           </Box>
+          {/* Confirmation Dialog */}
+          <Dialog open={confirmationOpen} onClose={handleCloseConfirmationDialog}>
+            <DialogTitle>Remove from Wishlist</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Are you sure you want to remove this item from your wishlist?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseConfirmationDialog} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={handleConfirmRemove} color="primary">
+                Confirm
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       ) : (
         <WishlistContainer>
-        <EmptyWishlistMessage variant="h6" style={{ padding: '100px 0 200px 0' }}>
-          Your wishlist is empty.
-        </EmptyWishlistMessage>
-      </WishlistContainer>
-    )
-    }
-  </WishlistContainer>
-  )
-}
+          <EmptyWishlistMessage variant="h6" style={{ padding: '100px 0 200px 0' }}>
+            Your wishlist is empty.
+          </EmptyWishlistMessage>
+        </WishlistContainer>
+      )}
+    </WishlistContainer>
+  );
+};
 
 export default Wishlist;
